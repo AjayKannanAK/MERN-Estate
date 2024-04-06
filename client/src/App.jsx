@@ -7,6 +7,7 @@ import About from './Pages/About'
 import Profile from './Pages/Profile'
 import Header from './components/Header'
 import PrivateRoute from './components/PrivateRoute'
+import CreateListing from './Pages/CreateListing'
 
 
 export default function App() {
@@ -21,9 +22,11 @@ export default function App() {
           <Route path='/about' element={<About />}/>
           <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />}/>
+            <Route path='/create-listing' element={<CreateListing />}/>
           </Route>
         </Routes>
       </BrowserRouter>
     </div>
   )
 }
+//why we are adding PrivateRoute -> This is because we don't want to show these pages to unauthenticated users. If they try to acess these pages then they will be redirected to signin page
