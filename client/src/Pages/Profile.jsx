@@ -17,7 +17,8 @@ export default function Profile() {
   const [listingError, setListingError] = useState(false);
   const [showListingsLoading, setShowListingsLoading] = useState(false);
   const [listings, setListings] = useState([]);
-  console.log(listings);
+  const [deleteListingError, setDeleteListingError] = useState(false);
+  //console.log(listings);
   //console.log(file);
   //console.log(filePercentage);
   //console.log('Unable to upload image', fileUploadError);
@@ -150,6 +151,28 @@ export default function Profile() {
     }
   }
 
+  const handleDeleteListing = async(listingId) => {
+    try {
+      setDeleteListingError(false);
+      const res = await fetch(`/api/listing/delete/${listingId}`,{
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if(data.success == false){
+        return setDeleteListingError(data.message);
+      }
+      //if everything ok then we have to remove the listing from listings so that deleted listing will not be shown under Show Listings section
+      setListings((prev) => prev.filter( (listing) => listing._id !== listingId ) );
+      //setListings((prev) => { prev.filter( (listing) => { listing._id !== listingId } ) } );
+      //there's a difference b/w both the ones => 1)Implicit Return in Arrow Function  2)Block Syntax in Arrow Function
+      //check chatgpt or notion notes
+      //1) In this snippet, you're using an arrow function with implicit return to directly return the result of the filter operation. It filters the prev array of listings based on the condition that the _id of each listing does not match the listingId. This is the correct approach for filtering elements from an array in React state.
+      //2) In this snippet, you're using block syntax in the arrow function passed to setListings. However, there's an issue here. The filter function inside the block doesn't actually modify the prev array. The filter function creates a new array with elements that satisfy the condition, but it doesn't mutate the original array. Additionally, the arrow function doesn't have an implicit return, so it doesn't return anything.
+    } catch (error) {
+      setDeleteListingError(error.message);
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto p-3">
       <h1 className="font-semibold text-3xl text-center my-7">Profile</h1>
@@ -187,7 +210,7 @@ export default function Profile() {
             </Link>
             <Link to={`/listing/${listing._id}`} className="font-semibold text-gray-700 flex-1 hover:underline truncate">{listing.name}</Link>
             <div className="flex flex-col items-center">
-              <button className="text-red-700 uppercase">Delete</button>
+              <button onClick={() => { handleDeleteListing(listing._id) }} className="text-red-700 uppercase">Delete</button>
               <button className="text-green-700 uppercase">Edit</button>
             </div>
           </div>
