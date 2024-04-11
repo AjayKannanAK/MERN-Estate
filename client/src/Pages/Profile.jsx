@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/storage";
 import { app } from "../firebase";
 import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutUserFailure, signOutUserStart, signOutUserSuccess, updateUserFailure, updateUserStart, updateUserSuccess } from "../redux/user/userSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const {currentUser, loading, error} = useSelector((state) => state.user);
@@ -18,6 +18,7 @@ export default function Profile() {
   const [showListingsLoading, setShowListingsLoading] = useState(false);
   const [listings, setListings] = useState([]);
   const [deleteListingError, setDeleteListingError] = useState(false);
+  const navigate = useNavigate();
   //console.log(listings);
   //console.log(file);
   //console.log(filePercentage);
@@ -211,7 +212,8 @@ export default function Profile() {
             <Link to={`/listing/${listing._id}`} className="font-semibold text-gray-700 flex-1 hover:underline truncate">{listing.name}</Link>
             <div className="flex flex-col items-center">
               <button onClick={() => { handleDeleteListing(listing._id) }} className="text-red-700 uppercase">Delete</button>
-              <button className="text-green-700 uppercase">Edit</button>
+              <Link to={`/update-listing/${listing._id}`}><button className="text-green-700 uppercase">Edit</button></Link>
+              {/* <button onClick={() => navigate(`/update-listing/${listing._id}`) } className="text-green-700 uppercase">Edit</button> //both the above one and this one does the same job */}
             </div>
           </div>
         ))}

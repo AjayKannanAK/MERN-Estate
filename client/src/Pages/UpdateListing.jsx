@@ -1,8 +1,8 @@
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function CreateListing() {
   const {currentUser} = useSelector((state) => state.user);
@@ -29,6 +29,38 @@ export default function CreateListing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
+  const { listingId } = useParams(); //our page address is http://localhost:5173/update-listing/66165ded8ef5c5b9b28b280e and we need to get 66165ded8ef5c5b9b28b280e from address and use this for fetching. How to get that?
+  //useParams is the hook provided by react to access URL parameters. 1) Import it from react react-router-dom and 2)const { listingIdParams } = useParams(); ->use this syntax to get the required url parameters
+  console.log(listingId);
+  //const params = useParams(); ->in this case it will not be destructured and we will get like this -> {listingId: '66165ded8ef5c5b9b28b280e'} and to get this we use -> params.listingId
+
+
+  /*
+   useEffect(() =>{
+    const fetchListing = async () => {
+      const res = await fetch(`/api/listing/get/${listingId}`);
+      const data = await res.json();
+      if(data.success == false) {
+        //setError(data.message);
+        return;
+      }
+      setFormData(data);
+    };
+    fetchListing();
+   }, [])
+   */
+
+  useEffect(() => {
+    fetch(`/api/listing/get/${listingId}`).then(async (res) => {
+      const data = await res.json();
+      if(data.success == false) {
+        //setError(data.message);
+        return;
+      }
+      setFormData(data);
+    })
+  }, []);
+
 
   const handleImageSubmit = () => {
     if(files.length > 0 && files.length <7 && formData.imageUrls.length < 7) {
@@ -129,7 +161,7 @@ export default function CreateListing() {
         return;
       }
       
-      const res = await fetch("/api/listing/create", {
+      const res = await fetch(`/api/listing/update/${listingId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -157,7 +189,7 @@ export default function CreateListing() {
 
   return (
     <main className='p-3 max-w-4xl mx-auto'>
-        <h1 className='text-3xl font-semibold text-center my-7'>Create a Listing</h1>
+        <h1 className='text-3xl font-semibold text-center my-7'>Update a Listing</h1>
         <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'> 
           <div className='flex flex-col gap-4 flex-1'>
             <input type='text' placeholder='Name' className='border rounded-lg p-3' id='name' minLength="10" maxLength="64" required onChange={handleChange} value={formData.name}/>
@@ -228,7 +260,7 @@ export default function CreateListing() {
                 <button type="button" onClick={() => { handleRemoveImage(index) }} className='p-3 text-red-700 uppercase hover:opacity-75'>Delete</button>
               </div>
             ))}
-            <button disabled={loading || uploading} className='bg-slate-700 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80 uppercase'>{ loading ? "Creating..." : "Create Listing" }</button>
+            <button disabled={loading || uploading} className='bg-slate-700 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80 uppercase'>{ loading ? "Updating..." : "Update Listing" }</button>
             {error && <p className='text-red-700 text-sm'>{error}</p>}
           </div>
         </form>
