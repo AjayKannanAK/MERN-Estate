@@ -5,6 +5,8 @@ import SwiperCore from 'swiper';
 import {Navigation} from 'swiper/modules';
 import 'swiper/css/bundle'
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking, FaShare } from 'react-icons/fa';
+import { useSelector } from "react-redux";
+import Contact from '../components/Contact';
 
 
 export default function Listing() {
@@ -14,6 +16,8 @@ export default function Listing() {
   const params = useParams();
   SwiperCore.use([Navigation]);
   const [copied, setCopied] = useState(false);
+  const {currentUser} = useSelector((state) => state.user);
+  const [contact, setContact] = useState(false); //if this is true we should not show Contact Landlord button, instead we should show 1)"listing name and owner name" of the listing, 2) a "textarea" to write the details and 3) "Send message" button which comes from Contact component
 
   useEffect(() => {
     try {
@@ -92,6 +96,10 @@ export default function Listing() {
                                 <p className='text-sm whitespace-nowrap'>{listing.furnished ? "Furnished" : "Not furnished"}</p>
                             </li>
                         </ul>
+                        {currentUser && (listing.userRef != currentUser._id) && !contact && (
+                            <button onClick={() => setContact(true) } className='bg-slate-700 text-white rounded-lg p-3 hover:opacity-95 uppercase mt-7'>Contact Landlord</button>
+                        )}
+                        {contact && <Contact listing={listing} />}
                     </div>
                 </div>
             </>
