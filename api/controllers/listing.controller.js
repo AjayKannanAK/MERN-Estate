@@ -89,7 +89,15 @@ export const getAllListingsInDb = async (req, res, next) => {
         const order = req.query.order || 'desc';
 
         const listings = await Listing.find({
-            name: {$regex: searchTerm, $options: 'i'}, //$options -> it can be either be lowercase or uppercase
+            //name: {$regex: searchTerm, $options: 'i'}, //$options -> it can be either be lowercase or uppercase
+            //address: {$regex: searchTerm, $options: 'i'}, //if we write separately like this for name and address, then in this case searchTerm should need to be present in both name and also in the address
+            $or: [{ //The $or operator performs a logical OR operation on an array of one or more <expressions> and selects the documents that satisfy at least one of the <expressions>. In this case searchTerm can be either in name or in address
+                    name: {$regex: searchTerm, $options: 'i'},
+                },
+                {
+                    address: {$regex: searchTerm, $options: 'i'},
+                },
+            ],
             offer,
             furnished,
             parking,
