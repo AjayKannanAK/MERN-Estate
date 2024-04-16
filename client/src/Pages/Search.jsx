@@ -18,6 +18,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [listings, setListings] = useState([]);
+  const [showMore, setShowMore] = useState(false);
   console.log(listings);
 
   const handleChange = (e) => {
@@ -93,6 +94,7 @@ export default function Search() {
       const fetchListings = async () => {
         setLoading(true);
         setError(false);
+        setShowMore(false);
         const searchQuery = urlParams.toString();
         const res = await fetch(`/api/listing/get?${searchQuery}`);
         const data = await res.json();
@@ -101,6 +103,9 @@ export default function Search() {
           setLoading(false);
           return;
         }
+        if(data.length > 8) {
+          setShowMore(true);
+        } else{ setShowMore(false); }
         setLoading(false);
         setListings(data);
       }
@@ -111,6 +116,21 @@ export default function Search() {
     }
 
   }, [location.search])
+
+  const handleShowMore = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('startIndex', startIndex);
+    const searchQuery = urlParams.toString();
+    //navigate(`/search?${searchQuery}`);
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+    if(data.length < 9) {
+      setShowMore(false);
+    }
+    setListings([...listings, ...data]); //we wanna keep the previous listings and also we need to add new listings. But as data is an array and we need to add that to aprevious existing array - we spraed operate the data as well
+  }
 
   return (
     <div className='flex flex-col md:flex-row'>
@@ -174,6 +194,7 @@ export default function Search() {
               {!loading && listings && listings.map((listing) => (
                 <ListingItem key={listing._id} listing={listing}/>
               ))}
+              {showMore && <button onClick={handleShowMore} className='text-green-700 hover:underline w-full text-center'>Show more</button>}
             </div>
         </div>
     </div>
